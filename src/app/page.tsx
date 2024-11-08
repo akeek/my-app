@@ -1,13 +1,5 @@
-import { Button } from "@/components/ui/button";
-
 import { Input } from "@/components/ui/input";
-import { z } from "zod";
-
-import AddToCartButton from "./addToCartButton";
 import ClearAllItems from "./clearAllItems";
-import Link from "next/link";
-
-import { shopItemSchema } from "@/lib/schema";
 import { ItemCard } from "@/components/itemCard";
 import { getProducts } from "@/lib/data";
 
@@ -32,13 +24,16 @@ placeholder="Search our products"
 className="border-solid"
  />
  </div>
-  
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-10">
-  {items.map((i) => (
-    <ItemCard key={i.id} item={i} />
-  ))}
 
-</div>
+<div className="container mx-auto">
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-10">
+    {items.map((i) => (
+      <ItemCard key={i.id} item={i} />
+    ))}
+
+  </div>
+</div>  
+
 
 </>
   );
