@@ -1,9 +1,9 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
-
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 
-// Define validation schema
 const formSchema = z.object({
   name: z.string().min(4, { message: "Navnet må ha minst 4 bokstaver" }),
   email: z.string().email({ message: "Ugyldig epost-adresse" }),
@@ -24,25 +23,51 @@ const formSchema = z.object({
   message: z.string().min(10, { message: "Meldingen din må være minst 10 bokstaver lang" }),
 })
 
+type FormData = z.infer<typeof formSchema>
+
 export default function ContactForm() {
-    const form = useForm({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-          name: "",
-          email: "",
-          subject: "",
-          message: "",
+
+  const [status, setStatus] = useState<string>("")
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      subject: "",
+      message: "",
+    },
+  })
+
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
+    console.log(data)
+    setStatus("Sending...")
+
+    try {
+      const response = await fetch("/api/send-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify(data),
       })
 
-  const onSubmit = (data:object) => {
-    console.log(data)
-//    Logikk her
+      if (response.ok) {
+        setStatus("Email sent successfully!")
+        form.reset()
+      } else {
+        setStatus("Failed to send email.")
+      }
+    } catch (error) {
+      console.error(error)
+      setStatus("An error occurred.")
+    }
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 container mx-auto pt-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 container mx-auto pt-8 w-1/2">
+      <h1 className="text-5xl text-center font-bold py-6">Send us a message</h1>
         <FormField
           control={form.control}
           name="name"
@@ -52,7 +77,7 @@ export default function ContactForm() {
               <FormControl>
                 <Input placeholder="Ola Dunk" {...field} />
               </FormControl>
-              <FormDescription>Ditt fulle navn</FormDescription>
+              <FormDescription>Your name</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -67,7 +92,7 @@ export default function ContactForm() {
               <FormControl>
                 <Input placeholder="navn@navnesen.no" {...field} />
               </FormControl>
-              <FormDescription>Din epost</FormDescription>
+              <FormDescription>E-mail address</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -78,11 +103,11 @@ export default function ContactForm() {
           name="subject"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Emne</FormLabel>
+              <FormLabel>Subject</FormLabel>
               <FormControl>
-                <Input placeholder="Emne til din melding" {...field} />
+                <Input placeholder="Your subject" {...field} />
               </FormControl>
-              <FormDescription>Hva handler din forespørsel om?</FormDescription>
+              <FormDescription>What is your message about</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -93,17 +118,19 @@ export default function ContactForm() {
           name="message"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Melding</FormLabel>
+              <FormLabel>Message</FormLabel>
               <FormControl>
-                <Input placeholder="Din melding her" {...field} />
+                <Input placeholder="Your message here" {...field} />
               </FormControl>
-              <FormDescription>Skriv din melding her</FormDescription>
+              <FormDescription>Write your message</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit">Send din melding</Button>
+        <Button type="submit" className="bg-sky-600 text-white hover:text-black hover:bg-sky-300">Send your message</Button>
+
+        <p>{status}</p>
       </form>
     </Form>
   )

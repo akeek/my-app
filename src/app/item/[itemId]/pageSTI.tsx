@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { getProducts } from "@/lib/data";
-import { SingleItemCard } from "@/components/singleItemCard";
+import { ItemCard } from "@/components/itemCard";
 
 const ItemPage = async ({
   params,
@@ -16,6 +16,7 @@ const ItemPage = async ({
   const items = await getProducts();
 
   const item = items.find((i) => i.id === itemId);
+  console.log(item);
 
   if (!item) {
     throw new Error("Ugyldig id");
@@ -23,9 +24,7 @@ const ItemPage = async ({
 
   return (
     <>
-      <div className="container mx-auto">
-        <SingleItemCard item={item} detailsLink={false} />
-      </div>
+      <ItemCard item={item} detailsLink={false} />
     </>
   );
 };
